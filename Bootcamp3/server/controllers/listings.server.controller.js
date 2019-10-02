@@ -38,11 +38,11 @@ exports.create = function(req, res) {
   /* Then save the listing */
   listing.save(function(err) {
     if(err) {
-      console.log(err);
-      res.status(400).send(err);
+      console.log(err)
+      res.status(400).send(err)
     } else {
-      res.json(listing);
       console.log(listing)
+      res.json(listing)
     }
   });
 };
@@ -58,24 +58,54 @@ exports.update = function(req, res) {
   var listing = req.listing;
 
   /* Replace the listings's properties with the new properties found in req.body */
- 
+  listing.name = req.body.name
+  listing.code = req.body.code
+  listing.address = req.body.address
   /*save the coordinates (located in req.results if there is an address property) */
- 
+  if(req.results)
+    listing.coordinates = req.results
   /* Save the listing */
-
+  listing.save(function(err) {
+    if (err) {
+      console.log(err)
+      res.status(400).send(err)
+    }
+    else {
+      console.log(listing)
+      res.json(listing)
+    }
+  });
 };
 
 /* Delete a listing */
 exports.delete = function(req, res) {
   var listing = req.listing;
 
-  /* Add your code to remove the listins */
-
+  /* Add your code to remove the listings */
+  Listing.findByIdAndDelete(listing._id, function(err) {
+    if (err) {
+      console.log(err)
+      res.status(400).send(err)
+    }
+    else {
+      console.log(listing)
+      res.json(listing)
+    }
+  })
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
   /* Add your code */
+  Listing.find({}, function(err, data) {
+    if (err) {
+      console.log(err)
+      res.status(400).send(err)
+    }
+    else {
+      res.send(data)
+    }
+  }).sort('code');
 };
 
 /* 
@@ -88,10 +118,11 @@ exports.list = function(req, res) {
 exports.listingByID = function(req, res, next, id) {
   Listing.findById(id).exec(function(err, listing) {
     if(err) {
-      res.status(400).send(err);
+      console.log(err)
+      res.status(400).send(err)
     } else {
-      req.listing = listing;
-      next();
+      req.listing = listing
+      next()
     }
   });
 };
